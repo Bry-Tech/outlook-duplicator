@@ -80,7 +80,7 @@ async function getValidToken() {
 function promptLoginDialog() {
   return new Promise((resolve, reject) => {
     const clientId = "c87c26dc-39f9-48c4-bfa0-e638588abb5f";
-    const redirect = "https://localhost:3000/assets/login.html";
+    const redirect = "https://sebastian-outlook-addin.vercel.app/assets/login.html";
     const scopes = "Calendars.ReadWrite";
 
     const authUrl = `https://login.microsoftonline.com/common/oauth2/v2.0/authorize?client_id=${clientId}&response_type=token&redirect_uri=${encodeURIComponent(redirect)}&scope=${encodeURIComponent(scopes)}&response_mode=fragment&state=12345&nonce=678910`;
