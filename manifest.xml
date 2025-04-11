@@ -8,10 +8,11 @@
   <Version>1.0.0.0</Version>
   <ProviderName>Contoso</ProviderName>
   <DefaultLocale>en-US</DefaultLocale>
-  <DisplayName DefaultValue="sebastian-outlook-addin" />
-  <Description DefaultValue="A template to get started." />
+  <DisplayName DefaultValue="Calendar duplicate." />
+  <Description DefaultValue="Outlook addin for event duplication" />
   <IconUrl DefaultValue="https://sebastian-outlook-addin.vercel.app/assets/icon-64.png" />
-  <HighResolutionIconUrl DefaultValue="https://sebastian-outlook-addin.vercel.app/assets/icon-128.png" />
+  <HighResolutionIconUrl
+    DefaultValue="https://sebastian-outlook-addin.vercel.app/assets/icon-128.png" />
   <SupportUrl DefaultValue="https://www.contoso.com/help" />
   <AppDomains>
     <AppDomain>https://www.contoso.com</AppDomain>
@@ -53,7 +54,7 @@
               <OfficeTab id="TabDefault">
                 <Group id="msgComposeGroup">
                   <Label resid="GroupLabel" />
-                  <Control xsi:type="Button" id="msgComposeOpenPaneButton">
+                  <!-- <Control xsi:type="Button" id="msgComposeOpenPaneButton">
                     <Label resid="TaskpaneButton.Label" />
                     <Supertip>
                       <Title resid="TaskpaneButton.Label" />
@@ -67,7 +68,7 @@
                     <Action xsi:type="ShowTaskpane">
                       <SourceLocation resid="Taskpane.Url" />
                     </Action>
-                  </Control>
+                  </Control> -->
                   <Control xsi:type="Button" id="ActionButton">
                     <Label resid="ActionButton.Label" />
                     <Supertip>
@@ -90,7 +91,7 @@
               <OfficeTab id="TabDefault">
                 <Group id="msgComposeGroup1">
                   <Label resid="GroupLabel" />
-                  <Control xsi:type="Button" id="msgComposeOpenPaneButton1">
+                  <!-- <Control xsi:type="Button" id="msgComposeOpenPaneButton1">
                     <Label resid="TaskpaneButton.Label" />
                     <Supertip>
                       <Title resid="TaskpaneButton.Label" />
@@ -104,7 +105,7 @@
                     <Action xsi:type="ShowTaskpane">
                       <SourceLocation resid="Taskpane.Url" />
                     </Action>
-                  </Control>
+                  </Control> -->
                   <Control xsi:type="Button" id="ActionButton1">
                     <Label resid="ActionButton1.Label" />
                     <Supertip>
@@ -128,25 +129,30 @@
       </Hosts>
       <Resources>
         <bt:Images>
-          <bt:Image id="Icon.16x16" DefaultValue="https://sebastian-outlook-addin.vercel.app/assets/icon-16.png" />
-          <bt:Image id="Icon.32x32" DefaultValue="https://sebastian-outlook-addin.vercel.app/assets/icon-32.png" />
-          <bt:Image id="Icon.80x80" DefaultValue="https://sebastian-outlook-addin.vercel.app/assets/icon-80.png" />
+          <bt:Image id="Icon.16x16"
+            DefaultValue="https://sebastian-outlook-addin.vercel.app/assets/icon-16.png" />
+          <bt:Image id="Icon.32x32"
+            DefaultValue="https://sebastian-outlook-addin.vercel.app/assets/icon-32.png" />
+          <bt:Image id="Icon.80x80"
+            DefaultValue="https://sebastian-outlook-addin.vercel.app/assets/icon-80.png" />
         </bt:Images>
         <bt:Urls>
-          <bt:Url id="Commands.Url" DefaultValue="https://sebastian-outlook-addin.vercel.app/commands.html" />
-          <bt:Url id="Taskpane.Url" DefaultValue="https://sebastian-outlook-addin.vercel.app/taskpane.html" />
+          <bt:Url id="Commands.Url"
+            DefaultValue="https://sebastian-outlook-addin.vercel.app/commands.html" />
+          <bt:Url id="Taskpane.Url"
+            DefaultValue="https://sebastian-outlook-addin.vercel.app/taskpane.html" />
         </bt:Urls>
         <bt:ShortStrings>
-          <bt:String id="GroupLabel" DefaultValue="Contoso Add-in" />
+          <bt:String id="GroupLabel" DefaultValue="Bryner.tech" />
           <bt:String id="TaskpaneButton.Label" DefaultValue="Show Task Pane" />
-          <bt:String id="ActionButton.Label" DefaultValue="Perform an action" />
-          <bt:String id="ActionButton1.Label" DefaultValue="Perform an action" />
+          <bt:String id="ActionButton.Label" DefaultValue="Duplicate" />
+          <bt:String id="ActionButton1.Label" DefaultValue="Duplicate" />
         </bt:ShortStrings>
         <bt:LongStrings>
           <bt:String id="TaskpaneButton.Tooltip"
             DefaultValue="Opens a Task Pane that enables users to insert text." />
-          <bt:String id="ActionButton.Tooltip" DefaultValue="Perform an action when clicked." />
-          <bt:String id="ActionButton1.Tooltip" DefaultValue="Perform an action when clicked." />
+          <bt:String id="ActionButton.Tooltip" DefaultValue="Duplicate the event." />
+          <bt:String id="ActionButton1.Tooltip" DefaultValue="Duplicate the event." />
         </bt:LongStrings>
       </Resources>
     </VersionOverrides>
