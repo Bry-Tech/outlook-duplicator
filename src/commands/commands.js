@@ -19,9 +19,9 @@ import { PublicClientApplication, InteractionRequiredAuthError } from "@azure/ms
 // MSAL Configuration
 const msalConfig = {
   auth: {
-    clientId: "c87c26dc-39f9-48c4-bfa0-e638588abb5f",
+    clientId: "73f655a9-0321-4ca5-b13a-bcb7759d4679",
     authority: "https://login.microsoftonline.com/common",
-    redirectUri: "https://sebastian-outlook-addin.vercel.app/commands.html",
+    redirectUri: "https://dublicate-outlook-addin.vercel.app/commands.html",
   },
   cache: {
     cacheLocation: "localStorage",
