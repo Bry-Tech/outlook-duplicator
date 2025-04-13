@@ -18,8 +18,9 @@ This Outlook add-in is intentionally **very simple and minimalistic**:
 - It creates a **new event**, placed right after the original one.
 - That's it – no clutter, no configuration.
 
-📸 See the GIF for an example:  
-![Demo](https://raw.githubusercontent.com/Bry-Tech/dublicate-outlook-addin/refs/heads/main/doc/Demo.gif)
+📸 See the GIF for an example:
+
+![til](./doc/Demo.gif)
 
 ---
 
