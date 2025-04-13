@@ -6,16 +6,16 @@
   xsi:type="MailApp">
   <Id>8d0bd4e0-e3bc-4d96-bfc7-6c1d9370c339</Id>
   <Version>1.0.0.0</Version>
-  <ProviderName>Contoso</ProviderName>
+  <ProviderName>bryner.tech</ProviderName>
   <DefaultLocale>en-US</DefaultLocale>
-  <DisplayName DefaultValue="Calendar duplicate." />
+  <DisplayName DefaultValue="Calendar duplicate" />
   <Description DefaultValue="Outlook addin for event duplication" />
   <IconUrl DefaultValue="https://dublicate-outlook-addin.vercel.app/assets/icon-64.png" />
   <HighResolutionIconUrl
     DefaultValue="https://dublicate-outlook-addin.vercel.app/assets/icon-128.png" />
   <SupportUrl DefaultValue="https://www.contoso.com/help" />
   <AppDomains>
-    <AppDomain>https://www.contoso.com</AppDomain>
+    <AppDomain>https://www.bryner.tech</AppDomain>
   </AppDomains>
   <Hosts>
     <Host Name="Mailbox" />
