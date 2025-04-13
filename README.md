@@ -25,7 +25,7 @@ _One click – and your meeting is duplicated._
 
 ## 🛠️ How to install
 
-1. Download the [`manifest.xml`](link-to-your-manifest) file or use the public URL if available.
+1. Download the [`manifest.xml`]([link-to-your-manifest](https://raw.githubusercontent.com/Bry-Tech/dublicate-outlook-addin/refs/heads/main/manifest.xml?token=GHSAT0AAAAAAC5R5MALMFKX6FXXRIOVOR7SZ73PLKQ)) file or use the public URL if available.
 2. Open Outlook.
 3. Go to **Home > Get Add-ins**.
 4. Select **"My add-ins"**, then **"Add a custom add-in" > "Add from File..."** or **"Add from URL..."**.
