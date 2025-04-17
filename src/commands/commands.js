@@ -33,7 +33,7 @@ const msalInstance = new PublicClientApplication(msalConfig);
 
 // Login request configuration
 const loginRequest = {
-  scopes: ["User.Read", "Calendars.ReadWrite"],
+  scopes: ["User.Read", "Calendars.ReadWrite", "Calendars.ReadWrite.Shared"],
 };
 
 // Track initialization promise
@@ -150,6 +150,7 @@ const getAsyncValue = (property) => {
 async function action(event) {
   try {
     console.log("Action called");
+    console.log("Current mailbox:", Office.context.mailbox.userProfile.emailAddress);
     const token = await getAccessToken();
     console.log("Access Token:", token);
 
@@ -160,6 +161,7 @@ async function action(event) {
     const start = await getAsyncValue("start");
     const end = await getAsyncValue("end");
     const location = await getAsyncValue("location");
+    const organizer = await getAsyncValue("organizer"); // Add this line
 
     // Fetch the body (both web and desktop use getAsync for the body)
     const body = await new Promise((resolve, reject) => {
@@ -218,6 +220,16 @@ async function action(event) {
     // Only include location if it exists
     if (location) {
       newEvent.location = { displayName: location };
+    }
+
+    // Add organizer information if available
+    if (organizer) {
+      newEvent.organizer = {
+        emailAddress: {
+          address: organizer.emailAddress,
+          name: organizer.displayName
+        }
+      };
     }
 
     // Only include body if it exists
@@ -294,7 +306,14 @@ async function testMeEndpoint(token) {
 }
 
 async function createCalendarEvent(eventData, event, token) {
-  const graphEndpoint = "https://graph.microsoft.com/v1.0/me/events";
+  // Verwende die Organizer E-Mail-Adresse für den Zielkalender
+  const targetMailbox = eventData.organizer?.emailAddress?.address;
+  
+  // Wenn kein Organizer gefunden wurde, verwende den Standard-Endpunkt
+  const graphEndpoint = targetMailbox 
+    ? `https://graph.microsoft.com/v1.0/users/${targetMailbox}/events`
+    : "https://graph.microsoft.com/v1.0/me/events";
+
   const headers = {
     Authorization: `Bearer ${token}`,
     "Content-Type": "application/json",
