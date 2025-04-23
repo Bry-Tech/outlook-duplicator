@@ -307,21 +307,25 @@ async function testMeEndpoint(token) {
 }
 
 async function createCalendarEvent(eventData, event, token, originalIsOnlineMeeting) {
-  // Add these properties to control meeting behavior
-  const hasAttendees = eventData.attendees && eventData.attendees.length > 0;
-  
-  // Only set meeting properties if there are attendees
+  // Prüfe, ob es Teilnehmer gibt, die nicht der Organisator sind
+  const hasOtherAttendees = eventData.attendees?.some(
+    (attendee) => attendee.emailAddress.address.toLowerCase() !== eventData.organizer.emailAddress.address.toLowerCase()
+  );
+
+  // Entferne attendees, wenn es keine anderen Teilnehmer gibt
   const enhancedEventData = {
     ...eventData,
-    responseRequested: hasAttendees, // Only request response if there are attendees
-    isOnlineMeeting: originalIsOnlineMeeting || false, // Use original setting or false if undefined
+    responseRequested: hasOtherAttendees, // Nur wenn es andere Teilnehmer gibt, wird eine Antwort angefordert
+    isOnlineMeeting: originalIsOnlineMeeting || false, // Verwende die ursprüngliche Einstellung oder false
   };
 
-  // Verwende die Organizer E-Mail-Adresse für den Zielkalender
+  if (!hasOtherAttendees) {
+    delete enhancedEventData.attendees; // Entferne attendees, wenn nur der Organisator enthalten ist
+  }
+
   const targetMailbox = eventData.organizer?.emailAddress?.address;
-  
-  // Wenn kein Organizer gefunden wurde, verwende den Standard-Endpunkt
-  const graphEndpoint = targetMailbox 
+
+  const graphEndpoint = targetMailbox
     ? `https://graph.microsoft.com/v1.0/users/${targetMailbox}/events`
     : "https://graph.microsoft.com/v1.0/me/events";
 
@@ -331,18 +335,20 @@ async function createCalendarEvent(eventData, event, token, originalIsOnlineMeet
   };
 
   try {
+    console.log("Request URL:", graphEndpoint);
+    console.log("Request Headers:", headers);
+    console.log("Request Body:", JSON.stringify(enhancedEventData, null, 2));
+
     const response = await fetch(graphEndpoint, {
       method: "POST",
       headers: headers,
       body: JSON.stringify(enhancedEventData),
     });
 
-    // Log HTTP status and response for debugging
     console.log("HTTP Status:", response.status);
     const data = await response.json();
 
     if (!response.ok) {
-      // Handle Microsoft Graph API errors (e.g., 4xx/5xx responses)
       throw new Error(`API Error: ${JSON.stringify(data)}`);
     }
 
