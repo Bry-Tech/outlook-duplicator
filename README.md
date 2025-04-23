@@ -57,4 +57,26 @@ MIT License – free to use, modify, and distribute.
 
 ---
 
+## Local Testing
+
+1. Start the local dev server:
+```bash
+npm run dev-server
+```
+
+2. Visit https://localhost:3000 to accept the certificate
+
+3. Install in Outlook Web:
+   - Open [Outlook Web](https://aka.ms/olksideload)
+   - Click settings ⚙️ (top right)
+   - Search for "Add-ins" in the settings search
+   - Choose "Custom add-ins" → "Add from file"
+   - Upload `manifest_local.xml`
+
+4. Debug the add-in:
+   - Open browser dev tools (F12)
+   - Check Console for logs
+
+
+
 © [bryner.tech](https://www.bryner.tech)

@@ -162,6 +162,7 @@ async function action(event) {
     const end = await getAsyncValue("end");
     const location = await getAsyncValue("location");
     const organizer = await getAsyncValue("organizer"); // Add this line
+    const isOnlineMeeting = await getAsyncValue("isOnlineMeeting");
 
     // Fetch the body (both web and desktop use getAsync for the body)
     const body = await new Promise((resolve, reject) => {
@@ -266,7 +267,7 @@ async function action(event) {
     console.log(newEvent);
     ///////////////////////////////////////////////////
 
-    await createCalendarEvent(newEvent, event, token);
+    await createCalendarEvent(newEvent, event, token, isOnlineMeeting);
     // await testMeEndpoint(token);
     event.completed();
   } catch (error) {
@@ -305,7 +306,17 @@ async function testMeEndpoint(token) {
   }
 }
 
-async function createCalendarEvent(eventData, event, token) {
+async function createCalendarEvent(eventData, event, token, originalIsOnlineMeeting) {
+  // Add these properties to control meeting behavior
+  const hasAttendees = eventData.attendees && eventData.attendees.length > 0;
+  
+  // Only set meeting properties if there are attendees
+  const enhancedEventData = {
+    ...eventData,
+    responseRequested: hasAttendees, // Only request response if there are attendees
+    isOnlineMeeting: originalIsOnlineMeeting || false, // Use original setting or false if undefined
+  };
+
   // Verwende die Organizer E-Mail-Adresse für den Zielkalender
   const targetMailbox = eventData.organizer?.emailAddress?.address;
   
@@ -323,7 +334,7 @@ async function createCalendarEvent(eventData, event, token) {
     const response = await fetch(graphEndpoint, {
       method: "POST",
       headers: headers,
-      body: JSON.stringify(eventData),
+      body: JSON.stringify(enhancedEventData),
     });
 
     // Log HTTP status and response for debugging
