@@ -280,29 +280,28 @@ async function action(event) {
 }
 
 async function createCalendarEvent(eventData, event, token, originalIsOnlineMeeting) {
-  // Prüfe, ob es Teilnehmer gibt, die nicht der Organisator sind
   const hasOtherAttendees = eventData.attendees?.some(
     (attendee) =>
       attendee.emailAddress.address.toLowerCase() !==
       eventData.organizer.emailAddress.address.toLowerCase()
   );
 
-  // Entferne attendees, wenn es keine anderen Teilnehmer gibt
   const enhancedEventData = {
     ...eventData,
-    responseRequested: hasOtherAttendees, // Nur wenn es andere Teilnehmer gibt, wird eine Antwort angefordert
-    isOnlineMeeting: originalIsOnlineMeeting || false, // Verwende die ursprüngliche Einstellung oder false
+    responseRequested: hasOtherAttendees,
+    isOnlineMeeting: originalIsOnlineMeeting || false,
   };
 
   if (!hasOtherAttendees) {
-    delete enhancedEventData.attendees; // Entferne attendees, wenn nur der Organisator enthalten ist
+    delete enhancedEventData.attendees;
   }
 
-  const targetMailbox = eventData.organizer?.emailAddress?.address;
+  // Get the current mailbox being accessed
+  const currentMailbox = Office.context.mailbox.item.owner?.emailAddress || 
+                        Office.context.mailbox.userProfile.emailAddress;
 
-  const graphEndpoint = targetMailbox
-    ? `https://graph.microsoft.com/v1.0/users/${targetMailbox}/events`
-    : "https://graph.microsoft.com/v1.0/me/events";
+  // Always create the event in the current context (user's mailbox or shared calendar)
+  const graphEndpoint = `https://graph.microsoft.com/v1.0/users/${currentMailbox}/events`;
 
   const headers = {
     Authorization: `Bearer ${token}`,
@@ -310,6 +309,7 @@ async function createCalendarEvent(eventData, event, token, originalIsOnlineMeet
   };
 
   try {
+    console.log("Creating event in calendar:", currentMailbox);
     console.log("Request URL:", graphEndpoint);
     console.log("Request Headers:", headers);
     console.log("Request Body:", JSON.stringify(enhancedEventData, null, 2));
