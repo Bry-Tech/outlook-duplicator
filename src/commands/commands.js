@@ -29,7 +29,6 @@ const msalConfig = {
   },
 };
 
-
 const msalInstance = new PublicClientApplication(msalConfig);
 
 // Login request configuration
@@ -129,6 +128,25 @@ async function getAccessToken() {
     authState.inProgress = false;
   }
 }
+
+// Add this helper function at the top level
+const getTargetMailbox = () => {
+  return new Promise((resolve, reject) => {
+    const item = Office.context.mailbox.item;
+    if (typeof item.getSharedPropertiesAsync !== "function") {
+      // Not a shared/delegated folder
+      return resolve(null);
+    }
+    
+    item.getSharedPropertiesAsync(result => {
+      if (result.status === Office.AsyncResultStatus.Succeeded) {
+        resolve(result.value.targetMailbox || null);
+      } else {
+        reject(result.error);
+      }
+    });
+  });
+};
 
 const getAsyncValue = (property) => {
   let item = Office.context.mailbox.item;
@@ -280,36 +298,40 @@ async function action(event) {
 }
 
 async function createCalendarEvent(eventData, event, token, originalIsOnlineMeeting) {
-  // Prüfe, ob es Teilnehmer gibt, die nicht der Organisator sind
   const hasOtherAttendees = eventData.attendees?.some(
     (attendee) =>
       attendee.emailAddress.address.toLowerCase() !==
       eventData.organizer.emailAddress.address.toLowerCase()
   );
 
-  // Entferne attendees, wenn es keine anderen Teilnehmer gibt
+  // Remove organizer from event data - Graph will set it correctly
+  const { organizer, ...eventBody } = eventData;
+
   const enhancedEventData = {
-    ...eventData,
-    responseRequested: hasOtherAttendees, // Nur wenn es andere Teilnehmer gibt, wird eine Antwort angefordert
-    isOnlineMeeting: originalIsOnlineMeeting || false, // Verwende die ursprüngliche Einstellung oder false
+    ...eventBody,
+    responseRequested: hasOtherAttendees,
+    isOnlineMeeting: originalIsOnlineMeeting || false,
   };
 
   if (!hasOtherAttendees) {
-    delete enhancedEventData.attendees; // Entferne attendees, wenn nur der Organisator enthalten ist
+    delete enhancedEventData.attendees;
   }
 
-  const targetMailbox = eventData.organizer?.emailAddress?.address;
+  // Get the correct target mailbox
+  const sharedMailbox = await getTargetMailbox();
+  const mailboxForPost = sharedMailbox || Office.context.mailbox.userProfile.emailAddress;
 
-  const graphEndpoint = targetMailbox
-    ? `https://graph.microsoft.com/v1.0/users/${targetMailbox}/events`
-    : "https://graph.microsoft.com/v1.0/me/events";
+  // Create the Graph endpoint with proper encoding
+  const graphEndpoint = `https://graph.microsoft.com/v1.0/users/${encodeURIComponent(mailboxForPost)}/events`;
 
   const headers = {
     Authorization: `Bearer ${token}`,
     "Content-Type": "application/json",
+    "X-AnchorMailbox": mailboxForPost // Add anchor for better performance
   };
 
   try {
+    console.log("Creating event in calendar:", mailboxForPost);
     console.log("Request URL:", graphEndpoint);
     console.log("Request Headers:", headers);
     console.log("Request Body:", JSON.stringify(enhancedEventData, null, 2));
@@ -320,14 +342,12 @@ async function createCalendarEvent(eventData, event, token, originalIsOnlineMeet
       body: JSON.stringify(enhancedEventData),
     });
 
-    console.log("HTTP Status:", response.status);
-    const data = await response.json();
-
     if (!response.ok) {
-      throw new Error(`API Error: ${JSON.stringify(data)}`);
+      const errorData = await response.json();
+      throw new Error(`API Error: ${JSON.stringify(errorData)}`);
     }
 
-    console.log("Event created successfully:", data);
+    console.log("Event created successfully");
     event.completed();
   } catch (error) {
     console.error("Error creating event:", error);
