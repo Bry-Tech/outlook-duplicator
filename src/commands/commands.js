@@ -29,6 +29,7 @@ const msalConfig = {
   },
 };
 
+
 const msalInstance = new PublicClientApplication(msalConfig);
 
 // Login request configuration
@@ -149,10 +150,10 @@ const getAsyncValue = (property) => {
 
 async function action(event) {
   try {
-    console.log("Action called");
-    console.log("Current mailbox:", Office.context.mailbox.userProfile.emailAddress);
+    // console.log("Action called");
+    // console.log("Current mailbox:", Office.context.mailbox.userProfile.emailAddress);
     const token = await getAccessToken();
-    console.log("Access Token:", token);
+    // console.log("Access Token:", token);
 
     ///////////////////////////////////////////////////
     let item = Office.context.mailbox.item;
@@ -162,6 +163,8 @@ async function action(event) {
     const end = await getAsyncValue("end");
     const location = await getAsyncValue("location");
     const organizer = await getAsyncValue("organizer"); // Add this line
+    // const isOnlineMeeting = await getAsyncValue("isOnlineMeeting");
+    const isOnlineMeeting = "";
 
     // Fetch the body (both web and desktop use getAsync for the body)
     const body = await new Promise((resolve, reject) => {
@@ -227,8 +230,8 @@ async function action(event) {
       newEvent.organizer = {
         emailAddress: {
           address: organizer.emailAddress,
-          name: organizer.displayName
-        }
+          name: organizer.displayName,
+        },
       };
     }
 
@@ -262,11 +265,10 @@ async function action(event) {
       }));
       newEvent.attendees.push(...optional);
     }
-
-    console.log(newEvent);
+    // console.log(newEvent);
     ///////////////////////////////////////////////////
 
-    await createCalendarEvent(newEvent, event, token);
+    await createCalendarEvent(newEvent, event, token, isOnlineMeeting);
     // await testMeEndpoint(token);
     event.completed();
   } catch (error) {
@@ -277,40 +279,28 @@ async function action(event) {
   }
 }
 
-async function testMeEndpoint(token) {
-  const graphEndpoint = "https://graph.microsoft.com/v1.0/me";
-  const headers = {
-    Authorization: `Bearer ${token}`,
-    "Content-Type": "application/json",
+async function createCalendarEvent(eventData, event, token, originalIsOnlineMeeting) {
+  // Prüfe, ob es Teilnehmer gibt, die nicht der Organisator sind
+  const hasOtherAttendees = eventData.attendees?.some(
+    (attendee) =>
+      attendee.emailAddress.address.toLowerCase() !==
+      eventData.organizer.emailAddress.address.toLowerCase()
+  );
+
+  // Entferne attendees, wenn es keine anderen Teilnehmer gibt
+  const enhancedEventData = {
+    ...eventData,
+    responseRequested: hasOtherAttendees, // Nur wenn es andere Teilnehmer gibt, wird eine Antwort angefordert
+    isOnlineMeeting: originalIsOnlineMeeting || false, // Verwende die ursprüngliche Einstellung oder false
   };
 
-  try {
-    const response = await fetch(graphEndpoint, {
-      method: "GET",
-      headers: headers,
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      console.error("❌ Error fetching /me endpoint:", data);
-      return null;
-    }
-
-    console.log("✅ /me response:", data);
-    return data; // Returns user profile data
-  } catch (error) {
-    console.error("🚨 Network/request error:", error);
-    return null;
+  if (!hasOtherAttendees) {
+    delete enhancedEventData.attendees; // Entferne attendees, wenn nur der Organisator enthalten ist
   }
-}
 
-async function createCalendarEvent(eventData, event, token) {
-  // Verwende die Organizer E-Mail-Adresse für den Zielkalender
   const targetMailbox = eventData.organizer?.emailAddress?.address;
-  
-  // Wenn kein Organizer gefunden wurde, verwende den Standard-Endpunkt
-  const graphEndpoint = targetMailbox 
+
+  const graphEndpoint = targetMailbox
     ? `https://graph.microsoft.com/v1.0/users/${targetMailbox}/events`
     : "https://graph.microsoft.com/v1.0/me/events";
 
@@ -320,18 +310,20 @@ async function createCalendarEvent(eventData, event, token) {
   };
 
   try {
+    console.log("Request URL:", graphEndpoint);
+    console.log("Request Headers:", headers);
+    console.log("Request Body:", JSON.stringify(enhancedEventData, null, 2));
+
     const response = await fetch(graphEndpoint, {
       method: "POST",
       headers: headers,
-      body: JSON.stringify(eventData),
+      body: JSON.stringify(enhancedEventData),
     });
 
-    // Log HTTP status and response for debugging
     console.log("HTTP Status:", response.status);
     const data = await response.json();
 
     if (!response.ok) {
-      // Handle Microsoft Graph API errors (e.g., 4xx/5xx responses)
       throw new Error(`API Error: ${JSON.stringify(data)}`);
     }
 
@@ -343,5 +335,4 @@ async function createCalendarEvent(eventData, event, token) {
   }
 }
 
-// Register the function with Office.
 Office.actions.associate("action", action);
