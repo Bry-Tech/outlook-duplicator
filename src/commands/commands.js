@@ -21,7 +21,7 @@ const msalConfig = {
   auth: {
     clientId: "73f655a9-0321-4ca5-b13a-bcb7759d4679",
     authority: "https://login.microsoftonline.com/common",
-    redirectUri: "https://dublicate-outlook-addin.vercel.app/commands.html",
+    redirectUri: "https://localhost:3000/commands.html",
   },
   cache: {
     cacheLocation: "localStorage",
